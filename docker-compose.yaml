@@ -1,0 +1,57 @@
+services:
+  migration:
+    build:
+      context: .
+      dockerfile: ./containers/migrator/Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sam-network
+    restart: "no"  # Don't restart the migrator after it completes
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - sam-network
+    depends_on:
+      - postgres
+  
+  postgres:
+    image: postgres:latest
+    restart: always
+    user: postgres
+    container_name: postgres
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      timeout: 30s
+      retries: 5
+    environment:
+      # POSTGRES_USER: yehtetaung
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: newdb
+    ports:
+      - "5432:5432" # Expose PostgreSQL on the default port
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persist data
+    networks:
+      - sam-network
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+networks:
+  sam-network:
+    driver: bridge

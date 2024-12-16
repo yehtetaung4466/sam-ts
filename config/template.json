@@ -1,0 +1,17 @@
+{
+    "layers":["shared","lib","nodejs","services"],
+    "functions":[
+    {
+        "name": "productsAll",
+        "path":"/products",
+        "method":"GET",
+        "layers":["shared","lib","nodejs","services"]
+    },
+    {
+        "name": "productsOne",
+        "path":"/products/{id}",
+        "method":"GET",
+        "layers":["shared","lib","nodejs","services"]
+    }
+]
+}

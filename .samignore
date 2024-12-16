@@ -1,0 +1,13 @@
+node_modules/
+*.log
+.git/
+*.md
+tests/
+dist/
+.gitignore
+Dockerfile
+docker-compose.hml
+pakage.json
+package-lock.json
+pnpm-lock.yaml
+README.md

@@ -1,0 +1,15 @@
+.git
+node_modules/
+dist/
+*.log
+events/
+__tests__/
+.gitignore
+.samignore
+buildspec.yml
+env.json
+README.md
+samconfig.toml
+template.yaml
+tsconfig.json
+.aws-sam/

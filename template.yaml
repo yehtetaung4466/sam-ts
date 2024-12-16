@@ -1,0 +1,105 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  sam-ts
+Transform:
+- AWS::Serverless-2016-10-31
+
+Resources:
+  # Define the Lambda layers
+
+  Shared:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: Shared
+      Description: A Shared layer
+      ContentUri: dist/layer-shared
+      CompatibleRuntimes:
+        - nodejs18.x
+
+  Lib:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: Lib
+      Description: A Lib layer
+      ContentUri: dist/layer-lib
+      CompatibleRuntimes:
+        - nodejs18.x
+
+  Nodejs:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: Nodejs
+      Description: A Nodejs layer
+      ContentUri: dist/layer-nodejs
+      CompatibleRuntimes:
+        - nodejs18.x
+
+  Services:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: Services
+      Description: A Services layer
+      ContentUri: dist/layer-services
+      CompatibleRuntimes:
+        - nodejs18.x
+
+
+  # Define the Lambda functions
+
+  productsAllFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Environment:
+        Variables:
+          DATABASE_URL: postgres://postgres:password@postgres:5432/newdb
+      CodeUri: dist/handlers/productsAll
+      Handler: index.handler
+      Runtime: nodejs18.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /products
+            Method: GET
+      Layers:
+        - !Ref Shared
+        - !Ref Lib
+        - !Ref Nodejs
+        - !Ref Services
+      
+
+  productsOneFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Environment:
+        Variables:
+          DATABASE_URL: postgres://postgres:password@postgres:5432/newdb
+      CodeUri: dist/handlers/productsOne
+      Handler: index.handler
+      Runtime: nodejs18.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /products/{id}
+            Method: GET
+      Layers:
+        - !Ref Shared
+        - !Ref Lib
+        - !Ref Nodejs
+        - !Ref Services
+      
+
+
+Outputs:
+  WebEndpoint:
+    Description: API Gateway endpoint URL for Prod stage
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
