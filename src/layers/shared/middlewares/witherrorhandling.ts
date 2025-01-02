@@ -10,10 +10,12 @@ export const withErrorHandling = (handler: LambdaHandler): LambdaHandler => {
     try {
       return await handler(event, context);
     } catch (error:any) {
+      console.log(error);
+      
       // Handle error, log it, etc.
       const errorMessage = error.message || "Unknown Error"
       if(error instanceof HttpException) {
-        return new ResponseObj(error.statusCode, error.messages, null)
+        return new ResponseObj(error.statusCode, error.message, error.body)
       }
 
       // Return a response with an error status code and message

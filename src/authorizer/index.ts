@@ -1,6 +1,7 @@
+import { APIGatewayAuthorizerEvent, APIGatewayTokenAuthorizerEvent } from 'aws-lambda';
 import * as jwt from 'jsonwebtoken'; // Assuming you're using the 'jsonwebtoken' package for decoding
 
-export const handler = async (event: any) => {
+export const handler = async (event: APIGatewayTokenAuthorizerEvent) => {
   const token = event.authorizationToken; // Get the token from the Authorization header
 
   // Validate the JWT token
@@ -27,7 +28,8 @@ export const handler = async (event: any) => {
       ],
     },
     context: {
-      user_id: userId,  // Pass the user_id to the Lambda context (this is what you want)
+      userId,  // Pass the user_id to the Lambda context (this is what you want)
+      methodArn: event.methodArn, // Pass the method ARN to the Lambda context
     },
   };
 };

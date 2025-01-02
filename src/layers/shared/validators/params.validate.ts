@@ -3,9 +3,9 @@ import HttpException from "../exceptions/http.exception";
 import { StatusCodes } from "http-status-codes";
 import { APIGatewayEvent } from "aws-lambda";
 
-export default function validateParams<T>(event: APIGatewayEvent, schema: ZodSchema<T>) {
+export default async function validateParams<T>(event: APIGatewayEvent, schema: ZodSchema<T>) {
   const payload = event.pathParameters || {};
-  const result = schema.safeParse(payload);
+  const result = await schema.safeParseAsync(payload);
 
   if (!result.success) {
     // Extract validation errors

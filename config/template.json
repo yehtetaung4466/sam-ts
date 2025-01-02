@@ -12,6 +12,12 @@
         "path":"/products/{id}",
         "method":"GET",
         "layers":["shared","lib","nodejs","services"]
+    },
+    {
+        "name": "productsCreate",
+        "path":"/products",
+        "method":"POST",
+        "layers":["shared","lib","nodejs","services"]
     }
 ]
 }

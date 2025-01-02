@@ -1,8 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: >-
-  sam-ts
-Transform:
-- AWS::Serverless-2016-10-31
+Transform: AWS::Serverless-2016-10-31
 
 Resources:
   # Define the Lambda layers
@@ -52,25 +49,33 @@ Resources:
       Environment:
         Variables:
           DATABASE_URL: postgres://postgres:password@postgres:5432/newdb
+          AWS_ACCESS_KEY_ID: admin
+          AWS_SECRET_ACCESS_KEY: password
+          AWS_REGION: us-east-1
+          S3_BUCKET_NAME: my-bucket
+          S3_URL: http://minio:9000
       CodeUri: dist/handlers/productsAll
       Handler: index.handler
       Runtime: nodejs18.x
       Architectures:
         - x86_64
       MemorySize: 128
-      Timeout: 100
+      Timeout: 1000
       Events:
         Api:
           Type: Api
           Properties:
             Path: /products
             Method: GET
+            RestApiId: !Ref ApiGatewayRestApi
+            RequestParameters:
+            -  method.request.header.Content-Type  # Ensure Content-Type header is specified
       Layers:
         - !Ref Shared
         - !Ref Lib
         - !Ref Nodejs
         - !Ref Services
-      
+        
 
   productsOneFunction:
     Type: AWS::Serverless::Function
@@ -78,28 +83,81 @@ Resources:
       Environment:
         Variables:
           DATABASE_URL: postgres://postgres:password@postgres:5432/newdb
+          AWS_ACCESS_KEY_ID: admin
+          AWS_SECRET_ACCESS_KEY: password
+          AWS_REGION: us-east-1
+          S3_BUCKET_NAME: my-bucket
+          S3_URL: http://minio:9000
       CodeUri: dist/handlers/productsOne
       Handler: index.handler
       Runtime: nodejs18.x
       Architectures:
         - x86_64
       MemorySize: 128
-      Timeout: 100
+      Timeout: 1000
       Events:
         Api:
           Type: Api
           Properties:
             Path: /products/{id}
             Method: GET
+            RestApiId: !Ref ApiGatewayRestApi
+            RequestParameters:
+            -  method.request.header.Content-Type  # Ensure Content-Type header is specified
       Layers:
         - !Ref Shared
         - !Ref Lib
         - !Ref Nodejs
         - !Ref Services
-      
+        
+
+  productsCreateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Environment:
+        Variables:
+          DATABASE_URL: postgres://postgres:password@postgres:5432/newdb
+          AWS_ACCESS_KEY_ID: admin
+          AWS_SECRET_ACCESS_KEY: password
+          AWS_REGION: us-east-1
+          S3_BUCKET_NAME: my-bucket
+          S3_URL: http://minio:9000
+      CodeUri: dist/handlers/productsCreate
+      Handler: index.handler
+      Runtime: nodejs18.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 1000
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /products
+            Method: POST
+            RestApiId: !Ref ApiGatewayRestApi
+            RequestParameters:
+            -  method.request.header.Content-Type  # Ensure Content-Type header is specified
+      Layers:
+        - !Ref Shared
+        - !Ref Lib
+        - !Ref Nodejs
+        - !Ref Services
+        
 
 
+  # Define the custom API Gateway with multipart/form-data support
+  ApiGatewayRestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowOrigin: "'*'"
+        AllowHeaders: "'*'"
+        AllowMethods: "'OPTIONS,GET,PUT,POST,DELETE'"
+      BinaryMediaTypes:
+        - multipart/form-data
 Outputs:
   WebEndpoint:
     Description: API Gateway endpoint URL for Prod stage
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Value: !Sub "https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

@@ -3,10 +3,10 @@ import HttpException from "../exceptions/http.exception";
 import { StatusCodes } from "http-status-codes";
 import { APIGatewayEvent } from "aws-lambda";
 
-export default function validateQueryParams<T>(event: APIGatewayEvent, schema: ZodSchema<T>) {
+export default async function validateQueryParams<T>(event: APIGatewayEvent, schema: ZodSchema<T>) {
   const payload = event.queryStringParameters || {};
-  const result = schema.safeParse(payload);
-
+  const result = await schema.safeParseAsync(payload);
+  
   if (!result.success) {
     // Extract validation errors
     const errors = result.error.errors.map((err) => err.message);

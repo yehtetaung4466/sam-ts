@@ -14,7 +14,7 @@ async function main() {
     // await setTimeout(5000)
 
     // Load environment variables
-    const connectionString = 'postgres://postgres:password@postgres:5432/newdb';
+    const connectionString = process.env.DATABASE_URL;
     if (!connectionString) {
       throw new Error("DATABASE_URL is not set in the environment variables.");
     }
@@ -30,6 +30,7 @@ async function main() {
     // Run migrations
     await migrate(db, { migrationsFolder: migrationsPath });
     console.log("Migration complete!");
+    process.exit(0);
   } catch (error) {
     console.error("Error during migration:", error);
     process.exit(1);

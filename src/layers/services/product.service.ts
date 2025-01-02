@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import HttpException from "../shared/exceptions/http.exception";
-import { db } from "/opt/lib/database";
-import CommonServiceI from "../shared/interfaces/service.interface";
+import { db, schema } from "/opt/lib/database";
+import { Product, ProductCreate } from "../lib/database/schema";
 
 async function findOne(id:number) {
     const product = await db.query.product.findFirst({
@@ -11,6 +11,13 @@ async function findOne(id:number) {
       return product
 }
 
-export const productService:CommonServiceI = {
-    findOne
+async function createOne(data: ProductCreate) {
+    
+    await db.insert(schema.product).values(data)
+    //
+}
+
+export default {
+    findOne,
+    createOne
 }

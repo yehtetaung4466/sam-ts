@@ -1,3 +1,4 @@
+
 services:
   migration:
     build:
@@ -26,7 +27,7 @@ services:
       - sam-network
     depends_on:
       - postgres
-  
+
   postgres:
     image: postgres:latest
     restart: always
@@ -48,9 +49,26 @@ services:
     networks:
       - sam-network
 
+  minio:
+    image: minio/minio
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password
+    ports:
+      - "9000:9000"  # Expose MinIO API (Object Storage) on port 4200
+      - "4300:4300"  # Expose MinIO Console (Web UI) on port 4300
+    volumes:
+      - minio_data:/data
+    networks:
+      - sam-network
+    command: server /data --console-address ":4300"
+    restart: always
+
 volumes:
   postgres_data:
   pgadmin_data:
+  minio_data:  # Persist data for MinIO
 
 networks:
   sam-network:
